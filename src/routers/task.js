@@ -45,10 +45,16 @@ router.post("/tasks", async (req, res) => {
       return res.status(404).send({ error: " Invalid updates!" });
     }
     try {
-      const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      }); // object will be updated from body
+      // const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      //   new: true,
+      //   runValidators: true,
+      // });
+
+      const task = await Task.findById(req.params.id)
+     updates.forEach((update)=>(task[update] = req.body[update]))
+     await task.save()
+      
+      // object will be updated from body
       // returns new user as a post to the existing user that was found before the update
       // Conditions for update
       // 1. The update went well and

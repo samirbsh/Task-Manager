@@ -21,3 +21,12 @@ app.get("*", (req, res) => {
 app.listen(port, () => {
   console.log("Server is listening on port " + port);
 });
+
+const bcrypt = require('bcrypt');
+const myFunctions = async () => {
+  const password = 'Red12345'
+  const hashedPassword = await bcrypt.hash(password, 8); // Second parameter is number of rounds
+  const isMatch = await bcrypt.compare(password,hashedPassword)
+}
+
+myFunctions()

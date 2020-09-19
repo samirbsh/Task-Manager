@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
-
-const User = mongoose.model('User',{
+const userSchema = new mongoose.Schema({
     name:{
         type: String,
         required:true,
@@ -39,6 +39,18 @@ const User = mongoose.model('User',{
             }
         }
     }
+}); 
+userSchema.pre('save',async function(next){
+    const user = this;
+    if(user.isModified('password')){
+        user.password = await bcrypt.hash(user.password,8)
+    }
+    next()                  // if not provided the page will keep on loading
 })
+
+//When we create a mongoose model,we pass in object as the second argument to the model.
+// Mongoose converts it into schema object
+// for hashing purpose we need to make schema first
+const User = mongoose.model('User',userSchema)
 
 module.exports = User
