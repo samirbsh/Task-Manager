@@ -16,7 +16,7 @@ router.post("/users", async (req, res) => {
     //promise comes from user.save
     try {
       await user.save();
-      res.status(201).send();
+      res.status(201).send(user);
     } catch (error) {
       res.status(400).send(error);
     }
@@ -58,10 +58,17 @@ router.post("/users", async (req, res) => {
       return res.status(404).send({ error: " Invalid updates!" });
     }
     try {
+      /*
       const user = await User.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true,
-      }); // object will be updated from body
+      }); 
+      */
+     const user = await User.findById(req.params.id)
+     updates.forEach((update)=>(user[update] = req.body[update]))
+     await user.save()
+     //will not use . notation because we want set a dynamic index)
+      // object will be updated from body
       // returns new user as a post to the existing user that was found before the update
       // Conditions for update
       // 1. The update went well and
