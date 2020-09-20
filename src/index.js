@@ -1,5 +1,6 @@
 // starting point for the website
 const express = require("express");
+const bcrypt = require('bcrypt');
 require("./db/mongoose"); // On call mongoose will connect automatically
 const userRouter = require("./routers/user")
 const taskRouter = require("./routers/task")
@@ -22,7 +23,7 @@ app.listen(port, () => {
   console.log("Server is listening on port " + port);
 });
 
-const bcrypt = require('bcrypt');
+
 const myFunctions = async () => {
   const password = 'Red12345'
   const hashedPassword = await bcrypt.hash(password, 8); // Second parameter is number of rounds
