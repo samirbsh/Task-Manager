@@ -1,6 +1,6 @@
 // starting point for the website
 const express = require("express");
-const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 require("./db/mongoose"); // On call mongoose will connect automatically
 const userRouter = require("./routers/user")
 const taskRouter = require("./routers/task")
@@ -24,10 +24,16 @@ app.listen(port, () => {
 });
 
 
+
 const myFunctions = async () => {
-  const password = 'Red12345'
-  const hashedPassword = await bcrypt.hash(password, 8); // Second parameter is number of rounds
-  const isMatch = await bcrypt.compare(password,hashedPassword)
+  //Data that will be embedded in our token
+  //second argument (secret) this is used to sign the token making sure that it is
+  //not tampered or altered in any way
+  //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJkd2RldyIsImlhdCI6MTYwMDU4NDgyMH0.p8dmmSwS4IDXs3ZhCgJRbJuC_XLDwtVDvijcw75ka-Y
+  //header(type of token and algorithm used to generate) + payload(body) + signature(for verification) 
+  const token = jwt.sign({_id:'dwdew'},'newSecretkey',{expiresIn:'7 days'})
+  const data = jwt.verify(token,'newSecretkey')
+  console.log(data)
 }
 
 myFunctions()
