@@ -1,6 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const User = require("../models/user");
+const auth = require('../middleware/auth')
 
 // For resourse creation we are going to use post
 // Here testing is done through postman
@@ -34,13 +35,8 @@ router.post('/users/login',async(req, res) => {
 });
 
 // fetching all the documents
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (error) {
-    res.status(500).send();
-  }
+router.get("/users/me", auth, async (req, res) => {
+  res.send(req.user)
 });
 
 //fetching document by ID and the route is going to be dynamic and the parameters are known as route parameters

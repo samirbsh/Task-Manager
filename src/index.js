@@ -9,10 +9,10 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // data is parsed from json to an object
-app.use((req, res, next) => {
-  //next registers middleware
-  res.status(503).send('site is currently down. Check back soon!')
-})
+// app.use((req, res, next) => {
+//   //next registers middleware
+//   res.status(503).send('site is currently down. Check back soon!')
+// })
 app.use(express.json());
 app.use(userRouter)
 app.use(taskRouter)
