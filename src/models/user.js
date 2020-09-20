@@ -1,73 +1,92 @@
-const mongoose = require('mongoose');
-const validator = require('validator');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const validator = require("validator");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required:true,
-        trim:true
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+    trim: true,
+    lowercase: true,
+    validate(value) {
+      if (!validator.isEmail(value)) {
+        throw new Error("Email is invalid");
+      }
     },
-    email:{
-        type: String,
-        unique:true,
-        required:true,
-        trim:true,
-        lowercase:true,
-        validate(value){
-        if(!validator.isEmail(value)){
-            throw new Error('Email is invalid');
-        }}
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 7,
+    trim: true,
+    validate(value) {
+      if (value.toLowerCase().includes("password")) {
+        throw new Error('Password cannot contain "password"');
+      }
     },
-    password:{
-        type:String,
-        required:true,
-        minlength:7,
-        trim:true,
-        validate(value){
-            if(value.toLowerCase().includes("password")){
-                throw new Error('Password cannot contain "password"' )
-            }
+  },
+  age: {
+    type: Number,
+    default: 0,
+    validate(value) {
+      if (value < 0) {
+        throw new Error("Age must a postive Number");
+      }
+    },
+  },
+  tokens:[{
+      token:{
+          type: String,
+          required:true,
+      }
+  }]
 
-        }
-    },  
-    age:{
-        type: Number,
-        default:0,
-        validate(value){
-            if(value<0){
-                throw new Error('Age must a postive Number')                   
-            }
-        }
-    }
-}); 
-userSchema.statics.findByCredentials = async(email,password)=>{
-    const user = await User.findOne({email})
-    if(!user){
-        throw new Error('Unable to login!!')
-    }
-    const isMatch = await bcrypt.compare(password,user.password)
-    if(!isMatch){
-        throw new Error('Unable to login!!')
-    }
-    return user;
-}
+});
+
+userSchema.methods.generateAuthToken = async function () {
+  //methods model are accessible on the instances
+  const user = this;
+  const token = jwt.sign({_id: user._id.toString()},'mynewcourseisthis');
+  user.tokens = user.tokens.concat({token});
+  await user.save();
+  return token;
+};
+
+userSchema.statics.findByCredentials = async (email, password) => {
+  //statics methods are accessible on models
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("Unable to login!!");
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Unable to login!!");
+  }
+  return user;
+};
 
 //hashing password before saving
-userSchema.pre('save',async function(next){
-    const user = this;
-    if(user.isModified('password')){
-        user.password = await bcrypt.hash(user.password,8)
-    }
-    next()                  // if not provided the page will keep on loading
-})
+userSchema.pre("save", async function (next) {
+  const user = this;
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  next(); // if not provided the page will keep on loading
+});
 
 //When we create a mongoose model,we pass in object as the second argument to the model.
 // Mongoose converts it into schema object
 // for hashing purpose we need to make schema first
-const User = mongoose.model('User',userSchema)
+const User = mongoose.model("User", userSchema);
 
-module.exports = User
+module.exports = User;
 
 //pm statement:
 /**Restriction on email:
