@@ -65,22 +65,22 @@ router.get("/users/me", auth, async (req, res) => {
 
 //fetching document by ID and the route is going to be dynamic and the parameters are known as route parameters
 // Id will be fetched by route handler
-router.get("/users/:id", async (req, res) => {
-  const _id = req.params.id;
+// router.get("/users/:id", async (req, res) => {
+//   const _id = req.params.id;
 
-  try {
-    const user = await User.findById(_id);
-    console.log(user);
-    if (!user) {
-      return res.status(404).send(user);
-    }
-    res.send(user);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
+//   try {
+//     const user = await User.findById(_id);
+//     console.log(user);
+//     if (!user) {
+//       return res.status(404).send(user);
+//     }
+//     res.send(user);
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
 
-router.patch("/users/:id", async (req, res) => {
+router.patch("/users/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "email", "password", "age"];
   const isValidOperation = updates.every((update) =>
@@ -90,15 +90,8 @@ router.patch("/users/:id", async (req, res) => {
     return res.status(404).send({ error: " Invalid updates!" });
   }
   try {
-    /*
-      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      }); 
-      */
-    const user = await User.findById(req.params.id);
-    updates.forEach((update) => (user[update] = req.body[update]));
-    await user.save();
+    updates.forEach((update) => (req.user[update] = req.body[update]));
+    await req.user.save();
     //will not use . notation because we want set a dynamic index)
     // object will be updated from body
     // returns new user as a post to the existing user that was found before the update
@@ -106,22 +99,16 @@ router.patch("/users/:id", async (req, res) => {
     // 1. The update went well and
     // 2. the update went poorly
     // 3. There is no user to update with that id
-    if (!user) {
-      return res.status(404).send();
-    }
-    res.send(user);
+    res.send(req.user);
   } catch (error) {
     res.status(404).send(error);
   }
 });
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/users/me", auth,async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).send();
-    }
-    res.send(user);
+    await req.user.remove()
+    res.send(req.user);
   } catch (error) {
     res.status(500).send();
   }
