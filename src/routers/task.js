@@ -18,11 +18,17 @@ router.post("/tasks", auth, async (req, res) => {
 });
 // GET /tasks?status=false
 // For pagination -> limit and skip
-//GET /tasks/?limit=10&skip=0(limit is number of data to keep in pages and skip is the page which is to displayed)
+// GET /tasks/?limit=10&skip=0(limit is number of data to keep in pages and skip is the page which is to displayed)
+// GET /tasks/sortBy=createdAt_asc
 router.get("/tasks", auth, async (req, res) => {
   const match ={}
+  const sort={}
   if(req.query.status){
     match.status = (req.query.status=== 'true')
+  }
+  if(req.query.sortBy){
+    const parts = req.query.sortBy.split('_')
+    sort[parts[0]] = parts[1] === 'desc'? -1:1
   }
   try {
     //const task = await Task.find({owner: req.user._id});
@@ -31,7 +37,8 @@ router.get("/tasks", auth, async (req, res) => {
        match,
        options:{
          limit:parseInt(req.query.limit),
-         skip:parseInt(req.query.skip)
+         skip:parseInt(req.query.skip),
+         sort
        }
      }).execPopulate() 
     res.send(req.user.tasks);
