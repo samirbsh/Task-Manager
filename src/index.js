@@ -25,25 +25,23 @@ app.listen(port, () => {
   console.log("Server is listening on port " + port);
 });
 
-const Task = require('./models/task')
-const User = require('./models/user')
-const main = async()=>{
-  // const task = await Task.findById('5f68486b08334036e47890ea')
-  // await task.populate('owner').execPopulate()
-  // console.log(task.owner)
-  try {
-    //we will get all task created by that user
-    const user = await User.findById('5f68d1736485294350355bd7')
-    await user.populate('tasks').execPopulate()
-    console.log(user.tasks)
-  } catch (error) {
-    console.log(error)
-  }
-  
-}
+const multer = require('multer')
+// var storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'images')
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, file.fieldname + '-' + Date.now())
+//   }
+// })
+const upload = multer({ 
+  dest:'images'
+})
+// const upload = multer({ storage: storage })
 
-// main()
-
+app.post('/upload', upload.single('upload'),(req, res,next) =>{
+  res.send()
+})
 
 // without middleware: new request -> run route handler
 //with middleware: new request -> do something -> run route handler
