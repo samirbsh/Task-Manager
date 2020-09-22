@@ -42,7 +42,7 @@ const main = async()=>{
   
 }
 
-main()
+// main()
 
 
 // without middleware: new request -> run route handler

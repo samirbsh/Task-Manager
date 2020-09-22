@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema({
       }
   }]
 
+},{
+  timestamps:true
 });
 
 // virtual property -> Relationship b/w two entities
