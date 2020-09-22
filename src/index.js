@@ -41,8 +41,11 @@ const upload = multer({
     // cb(undefined,false)
   }
 })
+
 app.post('/upload', upload.single('upload'),(req, res,next) =>{
   res.send()
+},(error, req,res,next)=>{
+  res.status(400).send({Error: error.message});
 })
 
 // without middleware: new request -> run route handler
