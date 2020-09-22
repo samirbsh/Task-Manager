@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Task= require('./task')
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -97,10 +98,15 @@ userSchema.pre("save", async function (next) {
   }
   next(); // if not provided the page will keep on loading
 });
-
 //When we create a mongoose model,we pass in object as the second argument to the model.
 // Mongoose converts it into schema object
 // for hashing purpose we need to make schema first
+
+userSchema.pre('remove', async function(next){
+  const user = this;
+  await Task.deleteMany({owner:user._id})
+  next();
+})
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
