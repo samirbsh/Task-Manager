@@ -26,22 +26,30 @@ app.listen(port, () => {
 });
 
 const multer = require('multer')
-// var storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'images')
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.fieldname + '-' + Date.now())
-//   }
-// })
 const upload = multer({ 
-  dest:'images'
+  dest:'images',
+  limits:{
+    fileSize:1000000,
+  },
+  fileFilter(req,file,cb){
+    if(!(file.originalname.match(/\.(doc|docx)$/))){
+      return cb(new Error('Please upload a Word Document'))
+    }
+    cb(undefined,true)
+    // cb(new Error('File must be a pdf'))
+    // cb(undefined,true)
+    // cb(undefined,false)
+  }
 })
-// const upload = multer({ storage: storage })
-
 app.post('/upload', upload.single('upload'),(req, res,next) =>{
   res.send()
 })
 
 // without middleware: new request -> run route handler
 //with middleware: new request -> do something -> run route handler
+
+//Filtering file type
+// req -> the request being made
+//file->  information about filebeing uploaded
+// cb -> tells multer when we are done filtering the file
+// regex101
