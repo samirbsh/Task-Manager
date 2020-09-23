@@ -4,20 +4,15 @@ const User = require("../models/user");
 const auth = require('../middleware/auth')
 const multer = require('multer')
 const sharp= require('sharp')
+const {sendWelcomeEmail,sendCancelationEmail} = require('../emails/account')
 // For resourse creation we are going to use post
 // Here testing is done through postman
 router.post("/users", async (req, res) => {
   // console.log(req.body)                   // The data comes here
   const user = new User(req.body); //Passing the object to be saved
-  // user.save().then(() =>{
-  //     res.status(201).send(user)
-  // }).catch((e) =>{
-  //     res.status(400).send(e)
-  //     //res.send(e)
-  // })
-  //promise comes from user.save
   try {
     await user.save();
+    sendWelcomeEmail(user.email,user.name)
     const token = await user.generateAuthToken()
     res.status(201).send({user,token});
   } catch (error) {
@@ -109,6 +104,7 @@ router.patch("/users/me", auth, async (req, res) => {
 router.delete("/users/me", auth,async (req, res) => {
   try {
     await req.user.remove()
+    sendCancelationEmail(req.user.email,req.user.name)
     res.send(req.user);
   } catch (error) {
     res.status(500).send();
