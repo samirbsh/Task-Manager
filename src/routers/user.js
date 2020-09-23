@@ -117,7 +117,7 @@ router.delete("/users/me", auth,async (req, res) => {
 const upload = multer({
   //dest:`avatar`,
   limits:{
-    fileSize:1000000,
+    fileSize:10000000,
   },fileFilter(req,file,cb){
     if(!(file.originalname.match(/\.(png|jpg|jpeg)$/))){
       return cb(new Error('Please upload a Image'))
@@ -126,6 +126,16 @@ const upload = multer({
   }
 })
 
+
+
+
+                        /**File into disk */
+// router.post("/users/me/avatar", auth, upload.single('avatar'), async (req, res)=>{
+//       res.send()
+//     },(error, req,res,next)=>{
+//       res.status(400).send({Error: error.message});
+//     })
+                        /**Single file upload in dataBase */
 router.post("/users/me/avatar", auth, upload.single('avatar'), async (req, res)=>{
   const buffer = await sharp(req.file.buffer).resize({width:250, height:250}).png().toBuffer()
   req.user.avatar = buffer
@@ -135,6 +145,16 @@ router.post("/users/me/avatar", auth, upload.single('avatar'), async (req, res)=
 },(error, req,res,next)=>{
   res.status(400).send({Error: error.message});
 })
+                        /**Multiple uploads */
+// router.post("/users/me/avatar", auth, upload.array('avatar',[10]), async (req, res)=>{
+//         res.send()
+//     },(error, req,res,next)=>{
+//         res.status(400).send({Error: error.message});
+//     })  
+
+
+
+
 /**problem
  * the route handler does not get access the file data that is uploaded that is
  * because multer runs first saving file to avatar directory
